@@ -1,0 +1,18 @@
+[Unit]
+Description=Prometheus Server Version {{ prometheus_version }}
+Documentation=https://prometheus.io/docs/introduction/overview/
+After=network-online.target
+
+[Service]
+User=prometheus
+Group=prometheus
+Restart=on-failure
+
+#Change this line if you download the 
+#Prometheus on different path user
+ExecStart={{ prometheus_bin }} \
+  --config.file={{ prometheus_dir_configuration }}/prometheus.yml \
+  --storage.tsdb.path={{ prometheus_dir_configuration }}/data
+
+[Install]
+WantedBy=multi-user.target

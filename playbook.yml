@@ -1,0 +1,5 @@
+- name: "[PROMETHEUS]"
+  hosts: monitoring
+  become: yes
+  roles:
+    - prometheus-grafana

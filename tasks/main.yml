@@ -1,0 +1,5 @@
+---
+# tasks file for wordpress
+#
+- name: "[PROMETHEUS] - install prometheus + start des services"
+  include: install_prometheus.yml
