@@ -5,6 +5,11 @@
     path: "{{ prometheus_bin }}"
   register: check_prometheus_present
 
+- name: check if prometheus configurations directory already installed
+  stat:
+    path: "{{ prometheus_dir_configuration }}"
+  register: check_prometheus_configuration_present
+
           
 - name: "[PROMETHEUS] - user prometheus"
   user:
@@ -36,7 +41,7 @@
     src: "{{ prometheus_source }}"
     dest: /tmp/
     remote_src: yes
-  when: check_prometheus_present.stat.exists == false or not get_prometheus_version.stdout == prometheus_version
+  when: check_prometheus_present.stat.exists == false or not get_prometheus_version.stdout == prometheus_version or check_prometheus_configuration_present.stat.exists == false
 
 - name: move the configuration files
   copy:
@@ -45,7 +50,7 @@
     owner: prometheus
     group: prometheus
     mode: 0755
-  when: check_prometheus_present.stat.exists == false
+  when: check_prometheus_configuration_present.stat.exists == false
 
 - name: move the binary to the final destination
   copy:
@@ -74,6 +79,14 @@
     dest: /etc/systemd/system/prometheus.service
     owner: root
     group: root
+    mode: 0755
+
+- name: config prometheus template
+  template:
+    src: prometheus.yml.j2
+    dest: '{{ prometheus_dir_configuration }}/prometheus.yml'
+    owner: prometheus
+    group: prometheus
     mode: 0755
   notify: reload_daemon_and_restart_prometheus
 
