@@ -3,3 +3,6 @@
 #
 - name: "[PROMETHEUS] - install prometheus + start des services"
   include: install_prometheus.yml
+
+- name: "[GRAFANA] - install grafana + start des services"
+  include: install_grafana.yml

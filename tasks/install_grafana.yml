@@ -1,0 +1,31 @@
+---
+
+- name: check if grafana already installed
+  stat:
+    path: "{{ grafana_bin }}"
+  register: check_grafana_present
+
+- name: on recupère la version souhaite
+  shell: 'grafana-server -v | cut -d " " -f 2'
+  when:  check_grafana_present.stat.exists == true
+  register: get_grafana_version
+  changed_when: false
+
+- name: download and install grafana
+  yum:
+    name: "{{ grafana_source }}"
+    state: present
+  when: check_grafana_present.stat.exists == false or not get_grafana_version.stdout == grafana_version or check_grafana_present.stat.exists == false
+
+- name: "open port 3000" 
+  firewalld: 
+    port: 3000/tcp
+    permanent: yes 
+    state: enabled 
+  notify: reload firewalld 
+
+- name: service grafana always started
+  systemd:
+    name: grafana-server
+    state: started
+    enabled: yes

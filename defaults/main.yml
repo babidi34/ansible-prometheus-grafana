@@ -12,7 +12,7 @@ prometheus_env: "production"
 prometheus_var_config: 
   global:
     scrape_interval: "{{ prometheus_scrape_interval }}"
-    evaluation_interval: 5s 
+    evaluation_interval: 15s 
     external_labels:
       env: '{{ prometheus_env }}'
   scrape_configs:
@@ -20,3 +20,7 @@ prometheus_var_config:
       scrape_interval: 5m
       static_configs:
         - targets: ['{{ inventory_hostname }}:9090']
+grafana_version: "7.5.2"
+grafana_source: "https://dl.grafana.com/oss/release/grafana-{{ grafana_version }}-1.x86_64.rpm"
+grafana_bin: /usr/sbin/grafana-server
+grafana_dir_configuration: /etc/grafana
