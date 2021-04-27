@@ -24,4 +24,5 @@ grafana_version: "7.5.2"
 grafana_source: "https://dl.grafana.com/oss/release/grafana-{{ grafana_version }}-1.x86_64.rpm"
 grafana_bin: /usr/sbin/grafana-server
 grafana_dir_configuration: /etc/grafana
+grafana_admin_user: "linux-man"
 grafana_admin_password: "password"

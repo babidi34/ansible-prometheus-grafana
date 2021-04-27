@@ -9,8 +9,12 @@
   stat:
     path: "{{ prometheus_dir_configuration }}"
   register: check_prometheus_configuration_present
+       
+- name: "[PROMETHEUS] - groupe prometheus"
+  group:
+    name: prometheus
+    state: present
 
-          
 - name: "[PROMETHEUS] - user prometheus"
   user:
     name: prometheus
@@ -43,6 +47,7 @@
     remote_src: yes
   when: check_prometheus_present.stat.exists == false or not get_prometheus_version.stdout == prometheus_version or check_prometheus_configuration_present.stat.exists == false
 
+
 - name: move the configuration files
   copy:
     src: "/tmp/{{ prometheus_name_unarchive }}/"
@@ -50,6 +55,8 @@
     owner: prometheus
     group: prometheus
     mode: 0755
+    directory_mode: yes
+    remote_src: yes
   when: check_prometheus_configuration_present.stat.exists == false
 
 - name: move the binary to the final destination
@@ -59,6 +66,7 @@
     owner: prometheus
     group: prometheus
     mode: 0755
+    remote_src: yes
   when: check_prometheus_present.stat.exists == false
 
 - name: suppression du binaire dans /tmp

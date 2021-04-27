@@ -5,6 +5,12 @@
     path: "{{ grafana_bin }}"
   register: check_grafana_present
 
+
+- name: check if grafana configuration directory is present
+  stat:
+    path: "{{ grafana_dir_configuration }}"
+  register: check_grafana_directory_present
+
 - name: on recupère la version souhaite
   shell: 'grafana-server -v | cut -d " " -f 2'
   when:  check_grafana_present.stat.exists == true
@@ -15,7 +21,7 @@
   yum:
     name: "{{ grafana_source }}"
     state: present
-  when: check_grafana_present.stat.exists == false or not get_grafana_version.stdout == grafana_version or check_grafana_present.stat.exists == false
+  when: check_grafana_present.stat.exists == false or not get_grafana_version.stdout == grafana_version or check_grafana_present.stat.exists == false or check_grafana_directory_present.stat.exists == false
 
 - name: "open port 3000" 
   firewalld: 
@@ -24,10 +30,19 @@
     state: enabled 
   notify: reload firewalld 
 
+- name: change admin user
+  lineinfile:
+    path: /etc/grafana/grafana.ini
+    regexp: "{{ item.before }}"
+    line: "{{ item.after }}"
+  with_items:
+  - { before: "^;admin_user", after: "admin_user = {{ grafana_admin_user }}"}
+  - { before: "^;admin_password", after: "admin_password = {{ grafana_admin_password }}"}
+
 - name: service grafana always started
   systemd:
     name: grafana-server
-    state: started
+    state: restarted
     enabled: yes
 
 - name: check que l'interface web de grafana soit up
@@ -39,7 +54,6 @@
   retries: 120
   delay: 1
   
-
 - name: change admin password for grafana gui
   shell: "grafana-cli admin reset-admin-password {{ grafana_admin_password }} "
   register: __command_admin

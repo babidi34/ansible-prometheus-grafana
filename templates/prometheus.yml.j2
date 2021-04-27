@@ -9,3 +9,8 @@
     - {{ server }}:9100
 {% endfor %}
 {% endif %}
+- job_name: haproxy_exporter
+  scrape_interval: 10s
+  static_configs:
+  - targets:
+    - serveur-haproxy:9101
